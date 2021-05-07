@@ -133,6 +133,76 @@ namespace TamagotchiAPI.Controllers
             return CreatedAtAction("GetPet", new { id = pet.Id }, pet);
         }
 
+
+
+        [HttpPost("{id}/Playtimes")]
+        public async Task<ActionResult<Playtime>> AddPlaytimeForPet(int id, Playtime playtime)
+        {
+
+            var pet = await _context.Pets.FindAsync(id);
+
+            if (pet == null)
+            {
+                return NotFound();
+            }
+
+            playtime.PetId = pet.Id;
+            _context.Playtimes.Add(playtime);
+
+            pet.HappinessLevel += 5;
+            pet.HungerLevel += 3;
+
+            await _context.SaveChangesAsync();
+            return Ok(playtime);
+        }
+
+        [HttpPost("{id}/Feedings")]
+        public async Task<ActionResult<Feeding>> AddFeedingForPet(int id, Feeding feeding)
+        {
+
+            var pet = await _context.Pets.FindAsync(id);
+            if (pet == null)
+            {
+                return NotFound();
+            }
+
+            feeding.PetId = pet.Id;
+
+            if (pet.HungerLevel == 0)
+            {
+                return BadRequest(new { Message = $"{pet.Name} isn't hungry!" });
+            }
+
+            feeding.When = DateTime.Now;
+            _context.Feedings.Add(feeding);
+
+            pet.HappinessLevel += 3;
+            pet.HungerLevel -= 5;
+
+            await _context.SaveChangesAsync();
+            return Ok(feeding);
+        }
+
+        [HttpPost("{id}/Scoldings")]
+        public async Task<ActionResult<Scolding>> AddScoldingForPet(int id, Scolding scolding)
+        {
+            var pet = await _context.Pets.FindAsync(id);
+            if (pet == null)
+            {
+                return NotFound();
+            }
+            scolding.PetId = pet.Id;
+            scolding.When = DateTime.Now;
+            _context.Scoldings.Add(scolding);
+
+
+            pet.HappinessLevel -= 5;
+
+            await _context.SaveChangesAsync();
+            return Ok(scolding);
+        }
+
+
         // DELETE: api/Pets/5
         //
         // Deletes an individual pet with the requested id. The id is specified in the URL
