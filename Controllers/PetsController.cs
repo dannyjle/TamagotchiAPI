@@ -147,6 +147,7 @@ namespace TamagotchiAPI.Controllers
             }
 
             playtime.PetId = pet.Id;
+            playtime.When = DateTime.Now;
             _context.Playtimes.Add(playtime);
 
             pet.HappinessLevel += 5;
